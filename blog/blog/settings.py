@@ -122,3 +122,72 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/2.2/howto/static-files/
 
 STATIC_URL = '/static/'
+
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR,'static'),
+]
+
+#redis
+CACHES = {
+    "default": {
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": "redis://127.0.0.1:6379/0",
+        "OPTIONS": {
+            "CLIENT_CLASS": "django_redis.client.DefaultClient",
+        }
+    },
+    "session": {
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": "redis://127.0.0.1:6379/1",
+        "OPTIONS": {
+            "CLIENT_CLASS": "django_redis.client.DefaultClient"
+        }
+    },
+}
+
+#session->redis
+SESSION_ENGING= "django.contrib.sessions.backends.cache"
+SESSION_CACHE_ALIAS = "session"
+
+#Log
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False, # whether to disable the existing logger
+    'formatters':{ # format of log information display
+        'verbose': {
+            'format': '%(levelname)s %(asctime)s %(module)s %(lineno)d %(message)s'
+        },
+        'simple': {
+            'format': '%(levelname)s %(module)s %(lineno)d %(message)s'
+         },
+    },
+    'filters': { # filter logs
+        'require_debug_true': { # django only outputs log in debug mode
+            '()': 'django.utils.log.RequireDebugTrue',
+        },
+    },
+    'handlers': { # log professing method
+        'console': { # output log to console
+            'level': 'INFO',
+            'filters': ['require_debug_true'],
+            'class': 'logging.StreamHandler',
+            'formatter': 'simple'
+        },
+        'file': { # output log to files
+            'level': 'INFO',
+            'class': 'logging.handlers.RotatingFileHandler',
+            'filename': os.path.join(BASE_DIR, 'logs/blog.log'), # location of log files
+            'maxBytes': 300 * 1024 * 1024,
+            'backupCount': 10,
+            'formatter': 'verbose'
+        },
+    },
+    'loggers': { # the logger
+        'django': { # define a loggers named 'django'
+            'handlers': ['console', 'file'],  # can put log txt to console and file at the same time
+            'propages': True, # whether to continue propagate log message
+            'level': 'INFO', # the lowest level log received by logger
+        },
+    }
+}
